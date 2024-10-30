@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VRseBuilder.Core.NoCode;
@@ -11,6 +11,7 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
     private VignetteHandler _vignetteHandler;
     [SerializeField]
     private AudioSource _introductionVoiceOverSource;
+    
     [SerializeField]
     private int _highlightLayer, _normalLayer;
     [SerializeField]
@@ -21,7 +22,7 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
     private GameObject _objectPivot = null;
     private bool _hasActionStarted = false;
     [Header("Debug")]
-    public GameObject _testObj;
+    public int debugIndex;
     public bool isDebugging = false;
 
     private void Start()
@@ -52,8 +53,15 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
     }
     public void IntroduceObject(GameObject obj)
     {
-        
-        PointedObjectData pointedObjectData = GetPointedObjectData(obj);
+        PointedObjectData pointedObjectData;
+        if (isDebugging){
+            pointedObjectData = GetPointedObjectData(_pointedObjectsData[debugIndex].pointedObject);
+            obj = pointedObjectData.pointedObject;
+        }
+         else{
+            pointedObjectData = GetPointedObjectData(obj);
+         }
+            
        // print("INSIDE INTRODUCE OBJECT. POINTED OBJECT IS: " + pointedObjectData != null? pointedObjectData.pointedObject: "not in list");
         if (_introduceObjectCoroutine == null && pointedObjectData != null)
         {
@@ -88,6 +96,9 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
     }
     public IEnumerator IIntroduceObject(PointedObjectData pointedObjectData)
     {
+        if (isDebugging){
+            pointedObjectData = _pointedObjectsData[debugIndex];
+        }
         _objectMaterializer._isObjectIntroducing = true;
         if (_objectPivot)
         {
@@ -106,6 +117,7 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
         {
             col.enabled = false;
         }
+
         pointedObjectData.uiOriginalPosition = pointedObjectData.pointedObjectUI.transform.position;
         pointedObjectData.uiOriginalRotation = pointedObjectData.pointedObjectUI.transform.rotation;
         print("Introducing object is: " + pointedObjectData.pointedObject);
@@ -113,12 +125,14 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
         col.isTrigger = true;
         _vignetteHandler.DarkenArea();
         ToggleObjectVisibilityOverVignette(pointedObjectData.pointedObject, true);
-        _objectMaterializer.MaterializeObjectNearCamera(pointedObjectData);
+        _objectMaterializer.MaterializeObjectAndBattery(pointedObjectData);
         yield return new WaitForSeconds(_objectMaterializer.appearTime + _objectMaterializer.disappearTime);
         pointedObjectData.pointedObjectUI.transform.parent = pointedObjectData.pivotObject.transform.parent;
         _objectMaterializer.MaterializeUI(pointedObjectData.pointedObjectUI);
-        _objectMaterializer.RotateObject(pointedObjectData.pivotObject);
         yield return new WaitForSeconds(_objectMaterializer.uiAppearTime);
+        _objectMaterializer.RotateObject(pointedObjectData.pivotObject);
+        print("STARTING BGM");
+        BGMHandler.instance.PlayBGM();
         foreach(AudioClip audio in pointedObjectData.pointedObjectVoiceOver)
         {
             _introductionVoiceOverSource.PlayOneShot(audio);
@@ -127,14 +141,18 @@ public class PointedObjectIntroducerProperty : ScriptableActionInvoker
                 yield return null;
             }
         }
+        print("STOPPING BGM");
+        BGMHandler.instance.StopBGM();
         pointedObjectData.pointedObjectUI.transform.parent = pointedObjectData.pivotObject.transform;
         _objectMaterializer.StopRotatingObject();
         _objectMaterializer._isObjectIntroducing = false;
         _objectMaterializer.MaterializeObjectInOriginalPosition(pointedObjectData.pivotObject);
+        _objectMaterializer.DematerializeBattery(pointedObjectData.batteryObject);
         _objectMaterializer.DemateralizeUI(pointedObjectData.pointedObjectUI);
         yield return new WaitForSeconds(_objectMaterializer.disappearTime + _objectMaterializer.appearTime);
         pointedObjectData.pointedObjectUI.transform.SetPositionAndRotation(pointedObjectData.uiOriginalPosition, pointedObjectData.uiOriginalRotation);
-        _pointedObjectsData.Remove(pointedObjectData);
+        if (!isDebugging)
+            _pointedObjectsData.Remove(pointedObjectData);
         _vignetteHandler.BrightenArea();
         while (!_vignetteHandler.isBrightened)
         {

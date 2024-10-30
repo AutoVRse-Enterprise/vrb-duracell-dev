@@ -6,6 +6,10 @@ using UnityEngine;
 public class PointedObjectData
 {
     public GameObject pointedObject;
+
+    public GameObject batteryObject;
+
+    public GameObject batteryTeleportPos;
     public AudioClip[] pointedObjectVoiceOver;
     public GameObject pointedObjectUI;
     [HideInInspector]

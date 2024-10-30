@@ -69,11 +69,13 @@ public class IntroduceAllObjectsProperty : ScriptableActionInvoker
             data.pivotObject.transform.DOScale(data.originalScale, _appearTime);
         }
         yield return new WaitForSeconds(_appearTime);
+        BGMHandler.instance.PlayBGM();
         _introAllObjectsSource.PlayOneShot(_introAllObjectsClip);
         while (_introAllObjectsSource.isPlaying)
         {
             yield return null;
         }
+        BGMHandler.instance.StopBGM();
         foreach (FinalObjectsToIntroduceData data in _finalIntroObjects)
         {
             data.pivotObject.transform.DOScale(Vector3.zero, _disappearTime);

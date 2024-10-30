@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VRseBuilder.Core.NoCode;
@@ -37,7 +37,6 @@ public class OfficeKeyboardInteraction : ScriptableActionInvoker
     public override IEnumerator IInvokeAction()
     {
         float timer = 0;
-        float previousTime = 0;
         while (timer < _delay)
         {
             if (_isHitOnce)

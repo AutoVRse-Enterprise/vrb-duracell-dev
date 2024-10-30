@@ -57,7 +57,7 @@ public class FlashlightHandler : MonoBehaviour
         {
             print("flashlightRunning");
             _ray = new Ray(_flashLightForwardTransform.position, _flashLightForwardTransform.forward);
-            if (Physics.Raycast(_ray, out _hit, 100))
+            if (Physics.Raycast(_ray, out _hit, 10000))
             {
                 _screenPoint = _mainCamera.WorldToScreenPoint(_hit.point);
                 _normalisedScreenPoint.x = _screenPoint.x / Screen.width;

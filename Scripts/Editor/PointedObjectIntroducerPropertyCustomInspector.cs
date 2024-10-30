@@ -10,7 +10,7 @@ public class PointedObjectIntroducerPropertyCustomInspector : Editor
 		PointedObjectIntroducerProperty script = (PointedObjectIntroducerProperty)target;
 		if (GUILayout.Button("IntroduceObject"))
 		{
-			script.IntroduceObject(script._testObj);
+			script.IntroduceObject(null);
 		}
 	}
 }

@@ -10,7 +10,7 @@ public class TriggerableEventPropertyCustomInspector : Editor
 		TriggerableEventProperty script = (TriggerableEventProperty)target;
 		if (GUILayout.Button("InvokeEvent"))
 		{
-			script.InvokeEvent();
+			script.InvokeEventInEditor();
 		}
 	}
 }
